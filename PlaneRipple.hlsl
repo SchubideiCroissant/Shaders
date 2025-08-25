@@ -25,7 +25,6 @@ Varyings vert(Attributes IN)
     float rad = length(p - os);
     float decay = 1 / (rad  + 1);
     
-
     float t = _Time.y * _Speed;
     float ripple = sin(rad * _Frequency - t)*decay * _Strength + _Depth;
 
