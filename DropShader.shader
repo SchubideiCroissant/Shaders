@@ -32,7 +32,7 @@ Shader "Universal Render Pipeline/RippleUnlit_VF"
                 float _Speed;
                 float4 _Center; // .xz = Zentrum im Objekt auf XZ
                CBUFFER_END
-            #include "Ripple.hlsl"
+            #include "PlaneRipple.hlsl"
             ENDHLSL
         }
     }
