@@ -1,4 +1,4 @@
-# HLSL Shader Workshop with Unity & ModernGL
+# Shader Workshop: Unity (HLSL) & ModernGL (GLSL)
 
 ## Tools and Research
 - [Geogebra](https://www.geogebra.org/u/schlachsahne76) – formulas i used to understand shader-logic
