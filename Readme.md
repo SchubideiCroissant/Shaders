@@ -1,7 +1,7 @@
 # HLSL Shader Workshop with Unity & Shadertoy
 
 ## Tools and Research
-- [Geogebra](https://www.geogebra.org/u/schlachsahne76) – formulas and visualization  
+- [Geogebra](https://www.geogebra.org/u/schlachsahne76) – formulas i used to understand shader-logic
 - [Free Unity Textures](https://ambientcg.com/list?sort=popular) – material and test textures  
 - [Shader Distance Functions](https://iquilezles.org/articles/distfunctions2d/) – mathematical references  
 
