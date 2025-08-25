@@ -30,7 +30,7 @@ Varyings vert(Attributes IN)
     float iLen2 = max(dot(iVec, iVec), 1e-8);
     float3 iDir = iVec * rsqrt(iLen2);
 
-// Winkel (Radiant) als „rad“
+// Winkel (Radiant) als ï¿½radï¿½
     float cosA = clamp(dot(vDir, iDir), -1.0, 1.0);
     float rad = acos(cosA);
 // Rest wie gehabt
@@ -49,6 +49,6 @@ Varyings vert(Attributes IN)
 
 half4 frag(Varyings IN) : SV_Target
 {
-    float brightness = saturate(0.4 + IN.ripple);
+    float brightness = saturate(0.5 + IN.ripple);
     return half4(_Color.rgb * brightness, 1.0);
 }
