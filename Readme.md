@@ -34,10 +34,10 @@ Waves are calculated in **world space** with a fixed wave center. The effect is 
 **Shader:** `moderngl/bubbles.py`  
 Bubble sizes and positions are calculated by the CPU and then drawn onto the screen.
 
+---
+
 ##### Generating Gifs from mp4/mkv...
 ```bash
 ffmpeg -i input.mp4-vf "fps=15,scale=400:-1:flags=lanczos,palettegen" palette.png
 ffmpeg -ss 0 -t 5 -i input.mp4 -i palette.png -filter_complex "fps=15,scale=400:-1:flags=lanczos[x];[x][1:v]paletteuse" output.gif
-
 ```
-First 5 seconds of the video
