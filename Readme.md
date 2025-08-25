@@ -1,4 +1,4 @@
-# HLSL Shader Workshop with Unity & Shadertoy
+# HLSL Shader Workshop with Unity & ModernGL
 
 ## Tools and Research
 - [Geogebra](https://www.geogebra.org/u/schlachsahne76) – formulas i used to understand shader-logic
@@ -7,9 +7,11 @@
 
 ---
 
-## Shader Demos
+## Shader Demos Unity
+### Vertex-Shaders
+#### Object-Space Ripple  
 
-### Object-Space Ripple  
+
 <img src="gifs/OS_sphere.gif" alt="Object-Space Ripple Shader" width="480">
 
 **Shader:** `SphereRipple.hlsl`  
@@ -17,10 +19,25 @@ Waves are calculated in **object space**, making the ripple effect stick to the 
 
 ---
 
-### World-Space Ripple  
+#### World-Space Ripple  
 <img src="gifs/WS_ripple.gif" alt="World-Space Ripple Shader" width="480">
 
 **Shader:** `UniversalRipple.hlsl`  
 Waves are calculated in **world space** with a fixed wave center. The effect is independent of object movement, suitable for environmental or global ripple effects.  
 
 ---
+
+## Shader Demos ModernGL
+### Fragment Shaders
+<img src="gifs/bubbles.gif" alt="Simple Fragment Shader" width="480">
+
+**Shader:** `moderngl/bubbles.py`  
+Bubble sizes and positions are calculated by the CPU and then drawn onto the screen.
+
+##### Generating Gifs from mp4/mkv...
+```bash
+ffmpeg -i input.mp4-vf "fps=15,scale=400:-1:flags=lanczos,palettegen" palette.png
+ffmpeg -ss 0 -t 5 -i input.mp4 -i palette.png -filter_complex "fps=15,scale=400:-1:flags=lanczos[x];[x][1:v]paletteuse" output.gif
+
+```
+First 5 seconds of the video
