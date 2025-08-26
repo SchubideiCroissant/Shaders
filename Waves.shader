@@ -82,8 +82,9 @@ Shader "Custom/Waves"
                     float wave = 0;
                     float rad = distance(posWS, _ImpactPointWS.xyz);
 
-                    //float decay = 1 / (1 + _Decay * rad);
-                    // 
+                    
+                    // float decay = exp(-_Decay * rad);
+                    
                     wave += sin(rad * _Frequency - t) * _Amplitude;
                     wave += sin((posWS.x + posWS.z) * (_Frequency * 0.7) - t * 1.3) * (_Amplitude * 0.5);
                     wave += sin(posWS.z * (_Frequency * 1.5) - t * 0.6 + rnd * 6.28) * (_Amplitude * 0.3);
