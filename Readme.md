@@ -26,7 +26,19 @@ Waves are calculated in **object space**, making the ripple effect stick to the 
 Waves are calculated in **world space** with a fixed wave center. The effect is independent of object movement, suitable for environmental or global ripple effects.  
 
 ---
+### Fragement-Shaders
+#### Screen-Position Shader
+coming soon
+**Shader:** `PositionShader.shader` 
 
+---
+
+#### Camera-Depth Shader
+coming soon
+**Shader:** `DepthShader.shader` 
+
+
+---
 ## Shader Demos ModernGL
 ### Fragment Shaders
 <img src="gifs/bubbles.gif" alt="Simple Fragment Shader" width="480">
