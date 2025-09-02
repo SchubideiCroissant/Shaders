@@ -27,7 +27,7 @@ Varyings vert(Attributes IN)
     posWS += nWS * ripple;
     OUT.positionHCS = TransformWorldToHClip(posWS);
     
-    
+   
     // Object-Variante
     /*
     float3 posOS = IN.positionOS;

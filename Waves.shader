@@ -10,7 +10,7 @@ Shader "Custom/Waves"
         _BumpMap("Normal Map", 2D) = "bump" {}
         _BumpScale("Normal Scale", Range(0,2)) = 1.0
         _Amplitude("Amplitude", Range(0,5)) = 1.0
-        _Frequency("Frequency", Range(0,50)) = 1.0
+        _Frequency("Frequency", Range(0,5)) = 1.0
         _Speed("Speed",     Range(0,10)) = 1.0
         _Decay("Decay Strength", Range(1,5)) = 1.0
         _ImpactPointWS("Wave Spawnpoint", Vector) = (0,0,0,0)
@@ -36,6 +36,7 @@ Shader "Custom/Waves"
 
                 TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
                 TEXTURE2D(_BumpMap); SAMPLER(sampler_BumpMap);
+
 
                 float4 _BaseColor;
                 float _Metallic;
@@ -85,11 +86,14 @@ Shader "Custom/Waves"
                     
                     // float decay = exp(-_Decay * rad);
                     
-                    wave += sin(rad * _Frequency - t) * _Amplitude;
-                    wave += sin((posWS.x + posWS.z) * (_Frequency * 0.7) - t * 1.3) * (_Amplitude * 0.5);
-                    wave += sin(posWS.z * (_Frequency * 1.5) - t * 0.6 + rnd * 6.28) * (_Amplitude * 0.3);
+                    wave += sin(rad * _Frequency - t) * _Amplitude*0.9; // Ripple
+                    wave += sin((posWS.x + posWS.z) * (_Frequency * 0.7) - t * 1.3) * (_Amplitude * 0.9); // Schraege Welle
+                    wave += sin(posWS.z * (_Frequency * 1.5) - t * 0.6 + rnd * 6.28) * (_Amplitude * 0.4); // Noise - Welle
 
-                    //float wave = sin((posWS.x + posWS.z) * _Frequency + t ) * _Amplitude + rnd;
+                    wave += sin(posWS.z * (_Frequency * 1.5) + t) * (_Amplitude * 0.55); // Noise - Welle
+                    //wave += sin(posWS.x * (_Frequency * 1.5) - t * 0.6 + rnd * 6.28) * (_Amplitude * 0.3);
+
+                    //wave = sin((posWS.x + posWS.z) * _Frequency + t ) * _Amplitude + rnd;
                     
 
                     // Vertex im Welt-Raum entlang der Normalen verschieben
