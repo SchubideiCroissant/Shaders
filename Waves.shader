@@ -15,6 +15,7 @@ Shader "Custom/Waves"
         _Decay("Decay Strength", Range(1,5)) = 1.0
         _Noise("Noise Strength", Range(0,1)) = 1.0
         _ImpactPointWS("Wave Spawnpoint", Vector) = (0,0,0,0)
+        _FoamWidth("Foam Width", Range(0,1)) = 1.0
     }
 
         SubShader
@@ -52,6 +53,7 @@ Shader "Custom/Waves"
                 float _Decay;
                 float _Noise;
                 float _TextureSpeed;
+                float _FoamWidth;
                 float3 _ImpactPointWS;
 
                 struct Attributes {
@@ -129,6 +131,16 @@ Shader "Custom/Waves"
                 half4 frag(Varyings i) : SV_Target
                 {
                     float waveFactor = (i.wave_height * 0.5) + 0.5;
+                    // Berechne, wo Target Liegt was Kamer sieht
+                    float2 screenSpaceUV = i.screenSpace.xy / i.screenSpace.w;
+                    float rawDepth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, sampler_CameraDepthTexture, screenSpaceUV);
+                    float4 clipPos = float4(screenSpaceUV * 2 - 1, rawDepth, 1);
+                    float4 worldPos = mul(UNITY_MATRIX_I_VP, clipPos);
+                    worldPos /= worldPos.w; // Jetzt hast du die Weltposition aus der Depth-Texture
+
+
+                    float diff = abs(worldPos.y - i.wave_height);
+                    float foamMask = saturate(1.0 - smoothstep(0.0, _FoamWidth, diff));
 
                     // Albedo
                     float4 albedoSample = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, i.uv) * _BaseColor;
@@ -155,8 +167,13 @@ Shader "Custom/Waves"
                     float3 diffuse = albedo * NdotL * mainLight.color;
                     float3 specular = pow(saturate(dot(nWS, normalize(L + V))), 16.0 * _Smoothness) * _Metallic * mainLight.color;
 
+
+                    float3 foamColor = float3(1.0, 1.0, 1.0); // weißer Schaum
+                    float3 baseColor = diffuse + specular;
+                    float3 finalColor = lerp(baseColor, foamColor, foamMask);
                     // H�he der Welle steuert Alpha-Kanal
-                    return half4( (diffuse + specular), waveFactor);
+                    return half4(finalColor, waveFactor);
+
                 }
                 ENDHLSL
             }
