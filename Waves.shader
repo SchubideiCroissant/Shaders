@@ -8,11 +8,12 @@ Shader "Custom/Waves"
         _Metallic("Metallic", Range(0,1)) = 0.0
         _Smoothness("Smoothness", Range(0,1)) = 0.5
         _BumpMap("Normal Map", 2D) = "bump" {}
-        _BumpScale("Normal Scale", Range(0,2)) = 1.0
         _Amplitude("Amplitude", Range(0,5)) = 1.0
         _Frequency("Frequency", Range(0,5)) = 1.0
         _Speed("Speed",     Range(0,10)) = 1.0
+        _TextureSpeed("Texture Speed", Range(0,1)) = 0.0
         _Decay("Decay Strength", Range(1,5)) = 1.0
+        _Noise("Noise Strength", Range(0,1)) = 1.0
         _ImpactPointWS("Wave Spawnpoint", Vector) = (0,0,0,0)
     }
 
@@ -34,6 +35,9 @@ Shader "Custom/Waves"
                 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
                 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
+                TEXTURE2D(_CameraDepthTexture);
+                SAMPLER(sampler_CameraDepthTexture);
+
                 TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
                 TEXTURE2D(_BumpMap); SAMPLER(sampler_BumpMap);
 
@@ -46,6 +50,8 @@ Shader "Custom/Waves"
                 float _Speed;
                 float _Frequency;
                 float _Decay;
+                float _Noise;
+                float _TextureSpeed;
                 float3 _ImpactPointWS;
 
                 struct Attributes {
@@ -62,6 +68,7 @@ Shader "Custom/Waves"
                     float4 tangentWS   : TEXCOORD2;
                     float2 uv          : TEXCOORD3;
                     float wave_height  : TEXCOORD4;
+                    float4 screenSpace : TEXCOORD5;
                 };
 
                 // Magic Numbers
@@ -78,6 +85,7 @@ Shader "Custom/Waves"
                     float3 nWS = TransformObjectToWorldNormal(v.normalOS);
                     // --- Wellenform ---
                     float t = _Time.y * _Speed;
+                    float t_speed = _Time.y * _TextureSpeed;
 
                     float rnd = hash(posWS.xz); 
                     float wave = 0;
@@ -86,9 +94,9 @@ Shader "Custom/Waves"
                     
                     // float decay = exp(-_Decay * rad);
                     
-                    wave += sin(rad * _Frequency - t) * _Amplitude*0.9; // Ripple
+                    wave += sin(rad * _Frequency - t) * _Amplitude * 0.9; // Ripple
                     wave += sin((posWS.x + posWS.z) * (_Frequency * 0.7) - t * 1.3) * (_Amplitude * 0.9); // Schraege Welle
-                    wave += sin(posWS.z * (_Frequency * 1.5) - t * 0.6 + rnd * 6.28) * (_Amplitude * 0.4); // Noise - Welle
+                    wave += _Noise * sin(posWS.z * (_Frequency * 1.5) - t * 0.6 + rnd * 6.28) * (_Amplitude * 0.4); // Noise - Welle
 
                     wave += sin(posWS.z * (_Frequency * 1.5) + t) * (_Amplitude * 0.55); // Noise - Welle
                     //wave += sin(posWS.x * (_Frequency * 1.5) - t * 0.6 + rnd * 6.28) * (_Amplitude * 0.3);
@@ -106,7 +114,13 @@ Shader "Custom/Waves"
                     o.positionWS = posWS;
                     o.tangentWS = float4(normalize(tWS), v.tangentOS.w);
                     o.normalWS = nWS;
+
+                    // Textur-Scroll
+                    v.uv += v.uv + t_speed;
                     o.uv = v.uv;
+
+                    // berechnet aus Clip-Space die Bildschirmkoordinaten
+                    o.screenSpace = ComputeScreenPos(TransformObjectToHClip(v.positionOS.xyz)); 
                     
                     return o;
 
