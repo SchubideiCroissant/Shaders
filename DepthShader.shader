@@ -50,6 +50,7 @@ Shader "Custom/DepthShader"
                 float rawDepth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, sampler_CameraDepthTexture, screenSpaceUV);
                 float linearDepth = Linear01Depth(rawDepth, _ZBufferParams); // linearisieren: 0 = Near, 1 = Far
 
+
                 return half4(linearDepth.xxx, 1); // xxx ist Graustufe
                 //return half4(screenSpaceUV, 0, 1); // Objekt ändert Farbe je nach Position auf dem Bildschirm
             }

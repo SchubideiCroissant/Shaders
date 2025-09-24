@@ -70,7 +70,8 @@ Shader "Custom/Waves"
                     float4 tangentWS   : TEXCOORD2;
                     float2 uv          : TEXCOORD3;
                     float wave_height  : TEXCOORD4;
-                    float4 screenSpace : TEXCOORD5;
+                    float wave_worldY : TEXCOORD5;   
+                    float4 screenSpace : TEXCOORD6;
                 };
 
                 // Magic Numbers
@@ -100,16 +101,17 @@ Shader "Custom/Waves"
                     wave += sin((posWS.x + posWS.z) * (_Frequency * 0.7) - t * 1.3) * (_Amplitude * 0.9); // Schraege Welle
                     wave += _Noise * sin(posWS.z * (_Frequency * 1.5) - t * 0.6 + rnd * 6.28) * (_Amplitude * 0.4); // Noise - Welle
 
-                    wave += sin(posWS.z * (_Frequency * 1.5) + t) * (_Amplitude * 0.55); // Noise - Welle
+                    wave += sin(posWS.z * (_Frequency * 1.5) + t) * (_Amplitude * 0.55); 
                     //wave += sin(posWS.x * (_Frequency * 1.5) - t * 0.6 + rnd * 6.28) * (_Amplitude * 0.3);
 
                     //wave = sin((posWS.x + posWS.z) * _Frequency + t ) * _Amplitude + rnd;
                     
 
-                    // Vertex im Welt-Raum entlang der Normalen verschieben
+                    // Vertex im Welt-Raum entlang der Normalen verschieben, zeigt bei Plane standartmäßig in Y - Richtung
                     posWS += nWS * wave;
                     o.positionHCS = TransformWorldToHClip(posWS);
-                    o.wave_height = wave; // Speichern im Varyings
+                    o.wave_height = wave; 
+                    o.wave_worldY = posWS.y;
                                       
                     // F�r Material usw.
                     float3 tWS = TransformObjectToWorldDir(v.tangentOS.xyz);
@@ -122,7 +124,7 @@ Shader "Custom/Waves"
                     o.uv = v.uv;
 
                     // berechnet aus Clip-Space die Bildschirmkoordinaten
-                    o.screenSpace = ComputeScreenPos(TransformObjectToHClip(v.positionOS.xyz)); 
+                    o.screenSpace = ComputeScreenPos(o.positionHCS);
                     
                     return o;
 
@@ -130,18 +132,24 @@ Shader "Custom/Waves"
 
                 half4 frag(Varyings i) : SV_Target
                 {
-                    float waveFactor = (i.wave_height * 0.5) + 0.5;
-                    // Berechne, wo Target Liegt was Kamer sieht
+                    
+                    // 1) UV für Depth-Texture vom verschobenen Vertex
                     float2 screenSpaceUV = i.screenSpace.xy / i.screenSpace.w;
-                    float rawDepth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, sampler_CameraDepthTexture, screenSpaceUV);
-                    float4 clipPos = float4(screenSpaceUV * 2 - 1, rawDepth, 1);
-                    float4 worldPos = mul(UNITY_MATRIX_I_VP, clipPos);
-                    worldPos /= worldPos.w; // Jetzt hast du die Weltposition aus der Depth-Texture
 
+                    // 2) Scene-Depth (nächstes Objekt vor der Kamera) → in lineare Augentiefe
+                    float rawDepthScene = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, sampler_CameraDepthTexture, screenSpaceUV);
+                    float sceneEyeDepth = LinearEyeDepth(rawDepthScene, _ZBufferParams); // in View-Ray Richtung
 
-                    float diff = abs(worldPos.y - i.wave_height);
-                    float foamMask = saturate(1.0 - smoothstep(0.0, _FoamWidth, diff));
+                    // 3) Wasser-Depth am selben Pixel: aus ClipSpace z/w → in lineare Augentiefe
+                    float waterDeviceDepth = i.positionHCS.z / i.positionHCS.w;            // [0..1] Geräteraum
+                    float waterEyeDepth = LinearEyeDepth(waterDeviceDepth, _ZBufferParams);
 
+                    // 4) Abstand beider Tiefen → Kontaktzone = kleine Differenz
+                    float diff = abs(sceneEyeDepth - waterEyeDepth);
+                    float foamMask = 1.0 - smoothstep(0.0, _FoamWidth, diff);
+                    foamMask = saturate(foamMask);
+
+                    float waveFactor = (i.wave_height * 0.5) + 0.5;
                     // Albedo
                     float4 albedoSample = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, i.uv) * _BaseColor;
                     float3 albedo = albedoSample.rgb*waveFactor;
