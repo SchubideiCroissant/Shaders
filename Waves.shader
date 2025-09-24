@@ -146,6 +146,7 @@ Shader "Custom/Waves"
 
                     // 4) Abstand beider Tiefen → Kontaktzone = kleine Differenz
                     float diff = abs(sceneEyeDepth - waterEyeDepth);
+                    diff *= 100000.0; // Skaliert den Bereich, damit _FoamWidth ~0.01–0.1 sinnvoll wird
                     float foamMask = 1.0 - smoothstep(0.0, _FoamWidth, diff);
                     foamMask = saturate(foamMask);
 
@@ -180,6 +181,7 @@ Shader "Custom/Waves"
                     float3 baseColor = diffuse + specular;
                     float3 finalColor = lerp(baseColor, foamColor, foamMask);
                     // H�he der Welle steuert Alpha-Kanal
+
                     return half4(finalColor, waveFactor);
 
                 }
