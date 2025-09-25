@@ -12,6 +12,7 @@
 #### Water Shader
 
 **Shader:** `Waves.shader` 
+<img src="gifs/waves.gif" alt="Wave-Shader" width="480">
 
 ##### Basic Concept
 
