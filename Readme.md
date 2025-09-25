@@ -1,15 +1,37 @@
 # Shader Workshop: Unity (HLSL) & ModernGL (GLSL)
 
-## Tools and Research
+The goal of this project was the creation of a **water shader** in Unity using HLSL.  
+The water shader combines vertex displacement with multiple sine waves and depth-based foam effects.  
+
+The shaders presented below (object-space ripple, world-space ripple, screen-position, depth) represent preliminary experiments.  
+They were used to explore different concepts such as coordinate spaces, vertex displacement, and depth textures, and provided the groundwork for the final water shader.
+
+## Table of Contents
+- [Shader Workshop: Unity (HLSL) \& ModernGL (GLSL)](#shader-workshop-unity-hlsl--moderngl-glsl)
+  - [Table of Contents](#table-of-contents)
+    - [Tools and Research](#tools-and-research)
+    - [Water Shader](#water-shader)
+        - [Vertex-Shader Basic Concept](#vertex-shader-basic-concept)
+        - [Fragment-Shader Texture](#fragment-shader-texture)
+        - [Foam using Camera Depth Texture](#foam-using-camera-depth-texture)
+    - [Vertex-Shaders](#vertex-shaders)
+      - [Object-Space Ripple](#object-space-ripple)
+      - [World-Space Ripple](#world-space-ripple)
+    - [Fragement-Shaders](#fragement-shaders)
+      - [Screen-Position Shader](#screen-position-shader)
+      - [Camera-Depth Shader](#camera-depth-shader)
+    - [Shader Demos ModernGL](#shader-demos-moderngl)
+    - [Bonus: Generating Gifs from mp4/mkv... using ffmpeg](#bonus-generating-gifs-from-mp4mkv-using-ffmpeg)
+
+---
+### Tools and Research
 - [Geogebra](https://www.geogebra.org/u/schlachsahne76) – formulas i used to understand shader-logic
 - [Free Unity Textures](https://ambientcg.com/list?sort=popular) – material and test textures   
 - [Water Textures](https://www.manytextures.com/) 
 - [Shader Distance Functions](https://iquilezles.org/articles/distfunctions2d/) – mathematical references  
 
 ---
-
-### Universal Shaders
-#### Water Shader
+### Water Shader
 
 **Shader:** `Waves.shader` 
 <img src="gifs/waves.gif" alt="Wave-Shader" width="480">
@@ -93,8 +115,7 @@ coming soon
 
 
 ---
-## Shader Demos ModernGL
-### Fragment Shaders
+### Shader Demos ModernGL
 <img src="gifs/bubbles.gif" alt="Simple Fragment Shader" width="480">
 
 **Shader:** `moderngl/bubbles.py`  
@@ -102,7 +123,7 @@ Bubble sizes and positions are calculated by the CPU and then drawn onto the scr
 
 ---
 
-##### Generating Gifs from mp4/mkv...
+### Bonus: Generating Gifs from mp4/mkv... using ffmpeg
 ```bash
 ffmpeg -i input.mp4-vf "fps=15,scale=400:-1:flags=lanczos,palettegen" palette.png
 ffmpeg -ss 0 -t 5 -i input.mp4 -i palette.png -filter_complex "fps=15,scale=400:-1:flags=lanczos[x];[x][1:v]paletteuse" output.gif
