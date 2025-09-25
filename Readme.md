@@ -18,7 +18,6 @@ They were used to explore different concepts such as coordinate spaces, vertex d
       - [Object-Space Ripple](#object-space-ripple)
       - [World-Space Ripple](#world-space-ripple)
     - [Fragement-Shaders](#fragement-shaders)
-      - [Screen-Position Shader](#screen-position-shader)
       - [Camera-Depth Shader](#camera-depth-shader)
     - [Shader Demos ModernGL](#shader-demos-moderngl)
     - [Bonus: Generating Gifs from mp4/mkv... using ffmpeg](#bonus-generating-gifs-from-mp4mkv-using-ffmpeg)
@@ -103,14 +102,9 @@ Waves are calculated in **world space** with a fixed wave center. The effect is 
 
 ---
 ### Fragement-Shaders
-#### Screen-Position Shader
-coming soon
-**Shader:** `PositionShader.shader` 
-
----
-
 #### Camera-Depth Shader
-coming soon
+<img src="gifs/depth.gif" alt="Depth-Shader" width="480">
+
 **Shader:** `DepthShader.shader` 
 
 
