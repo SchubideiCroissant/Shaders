@@ -8,6 +8,48 @@
 ---
 
 ## Shader Demos Unity
+### Universal Shaders
+#### Water Shader
+
+**Shader:** `Waves.shader` 
+
+##### Basic Concept
+
+The water surface is displaced by combining several sine functions.  
+Each sine controls an oscillation in a different spatial direction or pattern (radial, diagonal, noisy, etc.).  
+The resulting value modifies the vertex position along the surface normal.
+
+
+\[
+W(x, z, t) = \sum_{i=1}^{N} A_i \cdot \sin\!\big( g_i(x, z)\cdot f_i  - \omega_i t + \varphi_i\big)
+\]
+
+- \(A_i\) amplitude controlling the wave height  
+- \(g_i(x, z)\) spatial function such as a distance, a projection, or a simple axis 
+- \(f_i\) spatial frequency controlling the number of waves (inverse of wavelength)  
+- \(\omega_i\) temporal frequency controlling wave speed 
+- \(t\) global time provided by Unity
+- \(\varphi_i\) phase offset, optionally random for noise  
+
+The displaced vertex is computed as
+
+\[
+p' = p + n \cdot W(x,z,t)
+\]
+
+- \(p'\) displaced world position of the vertex  
+- \(p\) original world position of the vertex  
+- \(n\) world-space normal of the vertex  
+- \(W(x,z,t)\) wave function evaluated at the vertex position and global time  
+
+On a flat plane mesh (with normals pointing upwards) this means a vertical displacement, while on curved meshes the displacement follows the local surface normals.
+ 
+
+This formulation allows mixing multiple sine waves to create more natural and complex wave interference patterns.
+
+
+---
+
 ### Vertex-Shaders
 #### Object-Space Ripple  
 
