@@ -34,7 +34,7 @@ They were used to explore different concepts such as coordinate spaces, vertex d
 
 **Shader:** `Waves.shader` 
 
-<img src="gifs/waves.gif" alt="Wave-Shader" width="480">
+<img src="gifs/waves.gif" alt="Wave-Shader" width="1024">
 
 ##### Vertex-Shader Basic Concept
 
