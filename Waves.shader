@@ -133,20 +133,17 @@ Shader "Custom/Waves"
                 half4 frag(Varyings i) : SV_Target
                 {
                     
-                    // 1) UV für Depth-Texture vom verschobenen Vertex
                     float2 screenSpaceUV = i.screenSpace.xy / i.screenSpace.w;
 
-                    // 2) Scene-Depth (nächstes Objekt vor der Kamera) → in lineare Augentiefe
                     float rawDepthScene = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, sampler_CameraDepthTexture, screenSpaceUV);
-                    float sceneEyeDepth = LinearEyeDepth(rawDepthScene, _ZBufferParams); // in View-Ray Richtung
+                    float sceneEyeDepth = LinearEyeDepth(rawDepthScene, _ZBufferParams); 
 
-                    // 3) Wasser-Depth am selben Pixel: aus ClipSpace z/w → in lineare Augentiefe
-                    float waterDeviceDepth = i.positionHCS.z / i.positionHCS.w;            // [0..1] Geräteraum
+                    float waterDeviceDepth = i.positionHCS.z / i.positionHCS.w;           
                     float waterEyeDepth = LinearEyeDepth(waterDeviceDepth, _ZBufferParams);
 
-                    // 4) Abstand beider Tiefen → Kontaktzone = kleine Differenz
+                    // 4) Difference between  eye depth of the scene geometry and of the water surface fragment
                     float diff = abs(sceneEyeDepth - waterEyeDepth);
-                    diff *= 100000.0; // Skaliert den Bereich, damit _FoamWidth ~0.01–0.1 sinnvoll wird
+                    diff *= 100000.0; // Scales the Variable, to around ~ 0.01 to 1
                     float foamMask = 1.0 - smoothstep(0.0, _FoamWidth, diff);
                     foamMask = saturate(foamMask);
 

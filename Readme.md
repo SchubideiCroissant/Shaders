@@ -2,19 +2,19 @@
 
 ## Tools and Research
 - [Geogebra](https://www.geogebra.org/u/schlachsahne76) – formulas i used to understand shader-logic
-- [Free Unity Textures](https://ambientcg.com/list?sort=popular) – material and test textures  
+- [Free Unity Textures](https://ambientcg.com/list?sort=popular) – material and test textures   
+- [Water Textures](https://www.manytextures.com/) 
 - [Shader Distance Functions](https://iquilezles.org/articles/distfunctions2d/) – mathematical references  
 
 ---
 
-## Shader Demos Unity
 ### Universal Shaders
 #### Water Shader
 
 **Shader:** `Waves.shader` 
 <img src="gifs/waves.gif" alt="Wave-Shader" width="480">
 
-##### Basic Concept
+##### Vertex-Shader Basic Concept
 
 The water surface is displaced by combining several sine functions.  
 Each sine controls an oscillation in a different spatial direction or pattern (radial, diagonal, noisy, etc.).  
@@ -45,8 +45,19 @@ p' = p + n \cdot W(x,z,t)
 
 On a flat plane mesh (with normals pointing upwards) this means a vertical displacement, while on curved meshes the displacement follows the local surface normals.
  
-
 This formulation allows mixing multiple sine waves to create more natural and complex wave interference patterns.
+
+##### Fragment-Shader Texture
+In the fragment stage the base texture is sampled with UV coordinates that are slightly shifted over time.  
+This creates the effect of a scrolling surface pattern, making the water look more dynamic. 
+The time factor `_TextureSpeed` controls the scrolling speed.
+
+##### Foam using Camera Depth Texture
+
+Unity provides a built-in **camera depth texture**, which stores for each pixel the distance from the camera to the closest visible surface.  
+In the fragment shader this texture can be sampled using the screen-space UV coordinates of the current pixel.  
+By comparing this **scene depth** with the depth of the water surface fragment itself, one can detect intersections where both values are nearly identical.  
+This mechanism is used to generate the foam mask along contact edges between water and solid geometry.
 
 
 ---
