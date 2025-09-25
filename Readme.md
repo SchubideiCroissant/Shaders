@@ -42,9 +42,10 @@ The water surface is displaced by combining several sine functions.
 Each sine controls an oscillation in a different spatial direction or pattern (radial, diagonal, noisy, etc.).  
 The resulting value modifies the vertex position along the surface normal.
 
-![formula](https://latex.codecogs.com/png.latex?W(x,z,t)=A\cdot\sin(kx-\omega t))
+![Sin Sum](formulas/sin.PNG)
 
-
+The displaced vertex is computed as
+![Vertex Displacement](formulas/vertex.PNG)
 
 On a flat plane mesh (with normals pointing upwards) this means a vertical displacement, while on curved meshes the displacement follows the local surface normals.
  
