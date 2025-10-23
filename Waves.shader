@@ -82,7 +82,7 @@ Shader "Custom/Waves"
                     float4 tangentWS   : TEXCOORD2;
                     float2 uv          : TEXCOORD3;
                     float wave_height  : TEXCOORD4;
-                    float wave_worldY : TEXCOORD5;   
+                    float wave_worldY  : TEXCOORD5;   
                     float4 screenSpace : TEXCOORD6;
                 };
 
@@ -176,7 +176,7 @@ Shader "Custom/Waves"
                       (1.0 - smoothstep(foamMax - 0.05, foamMax, waveFactor));
 
 
-                    float foamRangeMask = smoothstep(0.65, 0.8, waveFactor) - 0.1; // Heigh-Limit for the foam             
+                    float foamRangeMask = smoothstep(0.65, 0.8, waveFactor); // Heigh-Limit for the foam             
                     float3 foamColor = foamSample.rgb;
                     float foamAlpha = dot(foamColor, float3(0.299, 0.587, 0.114)); // luminanz formula
                     float foamVisibility = foamRangeMask * (foamAlpha + 0.5);
