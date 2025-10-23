@@ -4,6 +4,7 @@ Shader "Custom/Waves"
     Properties
     {
         _BaseMap("Base Map", 2D) = "white" {}
+        _BaseMap2("Foam Map", 2D) = "white"{}
         _BaseColor("Base Color", Color) = (1,1,1,1)
         _Metallic("Metallic", Range(0,1)) = 0.0
         _Smoothness("Smoothness", Range(0,1)) = 0.5
@@ -41,6 +42,9 @@ Shader "Custom/Waves"
 
                 TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
                 TEXTURE2D(_BumpMap); SAMPLER(sampler_BumpMap);
+
+                TEXTURE2D(_BaseMap2); SAMPLER(sampler_BaseMap2);
+                TEXTURE2D(_BumpMap2); SAMPLER(sampler_BumpMap2);
 
 
                 float4 _BaseColor;
@@ -147,10 +151,16 @@ Shader "Custom/Waves"
                     float foamMask = 1.0 - smoothstep(0.0, _FoamWidth, diff);
                     foamMask = saturate(foamMask);
 
-                    float waveFactor = (i.wave_height * 0.5) + 0.5;
+                    float waveFactor = saturate((i.wave_height / (_Amplitude )) * 0.5 + 0.5); // normalize 0 - 1
                     // Albedo
                     float4 albedoSample = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, i.uv) * _BaseColor;
                     float3 albedo = albedoSample.rgb*waveFactor;
+
+                    // Foam on Top of Waves
+                    float foamTopMask = smoothstep(0.95, 1.0, waveFactor); // Heigh-Limit for the foam
+                    float4 foamSample = SAMPLE_TEXTURE2D(_BaseMap2, sampler_BaseMap2, i.uv);
+                    float3 foamColor = foamSample.rgb;
+
 
                     // Normal Map (Tangent Space -> World Space)
                     float3 nTS = UnpackNormal(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, i.uv));
@@ -173,10 +183,11 @@ Shader "Custom/Waves"
                     float3 diffuse = albedo * NdotL * mainLight.color;
                     float3 specular = pow(saturate(dot(nWS, normalize(L + V))), 16.0 * _Smoothness) * _Metallic * mainLight.color;
 
-
-                    float3 foamColor = float3(1.0, 1.0, 1.0); // weißer Schaum
+              
                     float3 baseColor = diffuse + specular;
-                    float3 finalColor = lerp(baseColor, foamColor, foamMask);
+                    float3 foamMix = lerp(baseColor, foamColor, foamTopMask);
+                    float3 finalColor = lerp(foamMix, float3(1.0, 1.0, 1.0), foamMask); // foamMask bleibt für Rand-Schaum
+
                     // H�he der Welle steuert Alpha-Kanal
 
                     return half4(finalColor, waveFactor);
