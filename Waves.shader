@@ -4,6 +4,11 @@ Shader "Custom/Waves"
     Properties
     {
         _BaseMap("Base Map", 2D) = "white" {}
+
+
+         _BaseMap_ST("Base Map Tiling/Offset", Vector) = (1,1,0,0)
+         _BaseMap2_ST("Foam Map Tiling/Offset", Vector) = (1,1,0,0)
+        
         _BaseMap2("Foam Map", 2D) = "white"{}
         _BaseColor("Base Color", Color) = (1,1,1,1)
         _Metallic("Metallic", Range(0,1)) = 0.0
@@ -36,6 +41,7 @@ Shader "Custom/Waves"
                 #pragma fragment frag
                 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
                 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+                //#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/SurfaceInput.hlsl"
 
                 TEXTURE2D(_CameraDepthTexture);
                 SAMPLER(sampler_CameraDepthTexture);
@@ -46,6 +52,8 @@ Shader "Custom/Waves"
                 TEXTURE2D(_BaseMap2); SAMPLER(sampler_BaseMap2);
                 TEXTURE2D(_BumpMap2); SAMPLER(sampler_BumpMap2);
 
+                float4 _BaseMap_ST;
+                float4 _BaseMap2_ST;
 
                 float4 _BaseColor;
                 float _Metallic;
@@ -136,7 +144,11 @@ Shader "Custom/Waves"
 
                 half4 frag(Varyings i) : SV_Target
                 {
-                    
+                                
+                    float2 baseUV = TRANSFORM_TEX(i.uv, _BaseMap);
+                    float2 foamUV = TRANSFORM_TEX(i.uv, _BaseMap2);
+
+
                     float2 screenSpaceUV = i.screenSpace.xy / i.screenSpace.w;
 
                     float rawDepthScene = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, sampler_CameraDepthTexture, screenSpaceUV);
@@ -153,12 +165,11 @@ Shader "Custom/Waves"
 
                     float waveFactor = saturate((i.wave_height / (_Amplitude )) * 0.5 + 0.5); // normalize 0 - 1
                     // Albedo
-                    float4 albedoSample = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, i.uv) * _BaseColor;
-                    float3 albedo = albedoSample.rgb*waveFactor;
+                    float4 albedoSample = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, baseUV) * _BaseColor;
+                    float4 foamSample = SAMPLE_TEXTURE2D(_BaseMap2, sampler_BaseMap2, foamUV);
 
                     // Foam on Top of Waves
-                    float foamTopMask = smoothstep(0.95, 1.0, waveFactor); // Heigh-Limit for the foam
-                    float4 foamSample = SAMPLE_TEXTURE2D(_BaseMap2, sampler_BaseMap2, i.uv);
+                    float foamTopMask = smoothstep(0.95, 1.0, waveFactor); // Heigh-Limit for the foam                  
                     float3 foamColor = foamSample.rgb;
 
 
@@ -180,7 +191,7 @@ Shader "Custom/Waves"
                     float NdotL = saturate(dot(nWS, L));
 
                     // Simple PBR-ish shading
-                    float3 diffuse = albedo * NdotL * mainLight.color;
+                    float3 diffuse = albedoSample * NdotL * mainLight.color;
                     float3 specular = pow(saturate(dot(nWS, normalize(L + V))), 16.0 * _Smoothness) * _Metallic * mainLight.color;
 
               
