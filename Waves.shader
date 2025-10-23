@@ -144,10 +144,9 @@ Shader "Custom/Waves"
 
                 half4 frag(Varyings i) : SV_Target
                 {
-                                
+                    // for Texture Tiling 
                     float2 baseUV = TRANSFORM_TEX(i.uv, _BaseMap);
                     float2 foamUV = TRANSFORM_TEX(i.uv, _BaseMap2);
-
 
                     float2 screenSpaceUV = i.screenSpace.xy / i.screenSpace.w;
 
@@ -169,9 +168,18 @@ Shader "Custom/Waves"
                     float4 foamSample = SAMPLE_TEXTURE2D(_BaseMap2, sampler_BaseMap2, foamUV);
 
                     // Foam on Top of Waves
-                    float foamTopMask = smoothstep(0.95, 1.0, waveFactor); // Heigh-Limit for the foam                  
-                    float3 foamColor = foamSample.rgb;
 
+                    float foamMin = 0.4;   
+                    float foamMax = 0.95;    
+                    //"Band"-Mask
+                    //float foamRangeMask = smoothstep(foamMin, foamMin + 0.05, waveFactor) *
+                      (1.0 - smoothstep(foamMax - 0.05, foamMax, waveFactor));
+
+
+                    float foamRangeMask = smoothstep(0.65, 0.8, waveFactor) - 0.1; // Heigh-Limit for the foam             
+                    float3 foamColor = foamSample.rgb;
+                    float foamAlpha = dot(foamColor, float3(0.299, 0.587, 0.114)); // luminanz formula
+                    float foamVisibility = foamRangeMask * (foamAlpha + 0.5);
 
                     // Normal Map (Tangent Space -> World Space)
                     float3 nTS = UnpackNormal(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, i.uv));
@@ -196,12 +204,12 @@ Shader "Custom/Waves"
 
               
                     float3 baseColor = diffuse + specular;
-                    float3 foamMix = lerp(baseColor, foamColor, foamTopMask);
+                    float3 foamMix = lerp(baseColor, foamColor, foamVisibility);
                     float3 finalColor = lerp(foamMix, float3(1.0, 1.0, 1.0), foamMask); // foamMask bleibt für Rand-Schaum
 
                     // H�he der Welle steuert Alpha-Kanal
 
-                    return half4(finalColor, waveFactor);
+                    return half4(finalColor, waveFactor + 0.6); // 
 
                 }
                 ENDHLSL
